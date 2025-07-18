@@ -1,0 +1,30 @@
+<h2>Chat with {{ target_user.username }}</h2>
+
+<div id="chat-box">
+  {% for message in messages %}
+    <p><strong>{{ message.sender.username }}:</strong> {{ message.content }}</p>
+  {% endfor %}
+</div>
+
+<form id="message-form" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="receiver_id" value="{{ target_user.id }}">
+  <textarea name="content" required></textarea>
+  <button type="submit">Send</button>
+</form>
+
+<script>
+document.getElementById('message-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  fetch("{% url 'send_message' %}", {
+    method: 'POST',
+    headers: {'X-CSRFToken': formData.get('csrfmiddlewaretoken')},
+    body: formData
+  }).then(response => response.json()).then(data => {
+    if (data.status === 'ok') {
+      location.reload();
+    }
+  });
+});
+</script>

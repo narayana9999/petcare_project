@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-body">
+      <div class="d-flex align-items-center mb-3">
+        {% if user_obj.profile_picture %}
+          <img src="{{ user_obj.profile_picture.url }}" width="120" height="120" class="rounded-circle me-3" alt="Profile Picture">
+        {% endif %}
+        <div>
+          <h3 class="card-title mb-0">{{ user_obj.username }}'s Profile</h3>
+          <small class="text-muted">{{ user_obj.get_role_display }}</small>
+        </div>
+      </div>
+
+      <ul class="list-group list-group-flush mb-4">
+        <li class="list-group-item"><strong>Email:</strong> {{ user_obj.email }}</li>
+        <li class="list-group-item"><strong>Location:</strong> {{ user_obj.location }}</li>
+        <li class="list-group-item"><strong>Phone:</strong> {{ user_obj.phone_number }}</li>
+        <li class="list-group-item"><strong>Bio:</strong> {{ user_obj.bio }}</li>
+      </ul>
+
+      {% if user.is_authenticated and user != user_obj %}
+        <a href="{% url 'chat_view' user_id=user_obj.id %}" class="btn btn-primary me-2">
+          💬 Contact
+        </a>
+        <a href="{% url 'leave_review' sitter_id=user_obj.id %}" class="btn btn-outline-primary">
+          ⭐ Leave Review
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if user_obj.is_sitter %}
+    <div class="mt-5">
+      <h4>⭐ Reviews</h4>
+      {% for review in user_obj.received_reviews.all %}
+        <div class="card mb-2">
+          <div class="card-body">
+            <strong>{{ review.reviewer.username }}</strong> rated: {{ review.rating }}/5<br>
+            <p>{{ review.comment }}</p>
+            <small class="text-muted">{{ review.created_at|date:"F j, Y" }}</small>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-muted">No reviews yet.</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if pets %}
+    <div class="mt-4">
+      <h4>🐾 Pets Owned</h4>
+      <ul class="list-group">
+        {% for pet in pets %}
+          <li class="list-group-item">{{ pet.name }} — {{ pet.type }} ({{ pet.age }} yrs)</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

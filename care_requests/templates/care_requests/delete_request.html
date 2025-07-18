@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Delete care request for {{ request_obj.pet.name }}?</h2>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Yes, Delete</button>
+  <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

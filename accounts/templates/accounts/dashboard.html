@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Welcome, {{ user.username }}!</h2>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="card border-primary">
+        <div class="card-body">
+          <h5 class="card-title">📥 Messages</h5>
+          <p class="card-text">{{ unread_messages }}</p>
+          <a href="{% url 'inbox' %}" class="btn btn-sm btn-outline-primary">Go to Inbox</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-info">
+        <div class="card-body">
+          <h5 class="card-title">Your Role(s)</h5>
+          <p class="card-text">
+            {% if user.is_owner %}🦴 Pet Owner<br>{% endif %}
+            {% if user.is_sitter %}🐾 Pet Sitter{% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if user.is_owner %}
+    <h4>🐶 Your Pets</h4>
+    <a href="{% url 'add_pet' %}" class="btn btn-sm btn-success mb-2">Add New Pet</a>
+    <ul class="list-group mb-4">
+      {% for pet in pets %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ pet.name }} - {{ pet.type }} ({{ pet.age }} yrs)
+          <span>
+            <a href="{% url 'edit_pet' pet.id %}" class="btn btn-sm btn-outline-info">Edit</a>
+            <a href="{% url 'delete_pet' pet.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+          </span>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">No pets added yet.</li>
+      {% endfor %}
+    </ul>
+
+    <h4>📅 Your Care Requests</h4>
+    <a href="{% url 'create_request' %}" class="btn btn-sm btn-success mb-2">Create Request</a>
+    <ul class="list-group mb-4">
+      {% for req in my_requests %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ req.pet.name }} — {{ req.start_date }} to {{ req.end_date }} ({{ req.location }})
+          <span>
+            <a href="{% url 'edit_request' req.id %}" class="btn btn-sm btn-outline-info">Edit</a>
+            <a href="{% url 'delete_request' req.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+          </span>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">No care requests created yet.</li>
+      {% endfor %}
+    </ul>
+
+    <h4>📨 Applications from Sitters</h4>
+    <ul class="list-group mb-4">
+      {% for app in received_applications %}
+        <li class="list-group-item">
+          <form method="post" action="{% url 'request_detail' app.care_request.pk %}" class="d-flex justify-content-between align-items-center">
+            {% csrf_token %}
+            <div>
+              <strong>
+                <a href="{% url 'public_profile' user_id=app.sitter.id %}">
+                  {{ app.sitter.username }}
+                </a>
+              </strong> applied for 
+              {{ app.care_request.pet.name }}
+            </div>
+
+            <div class="d-flex align-items-center">
+              <input type="hidden" name="action" value="update_status">
+              <input type="hidden" name="application_id" value="{{ app.id }}">
+              <select name="status" class="form-select form-select-sm me-2" style="width: auto;">
+                <option value="Pending" {% if app.status == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Accepted" {% if app.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                <option value="Rejected" {% if app.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+              </select>
+              <button type="submit" class="btn btn-sm btn-success">Update</button>
+            </div>
+          </form>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">No applications received yet.</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if user.is_sitter %}
+    <h4>📄 Open Care Requests</h4>
+    <ul class="list-group mb-4">
+      {% for req in available_requests %}
+        <li class="list-group-item">
+          {{ req.pet.name }} ({{ req.location }}) — {{ req.start_date }} to {{ req.end_date }}
+          <a href="{% url 'request_detail' req.id %}" class="btn btn-sm btn-outline-primary float-end">View</a>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">No open care requests at the moment.</li>
+      {% endfor %}
+    </ul>
+
+    <h4>📄 Applications You've Submitted</h4>
+    <ul class="list-group mb-4">
+      {% for app in my_applications %}
+        <li class="list-group-item">
+          {{ app.care_request.pet.name }} for 
+          <a href="{% url 'public_profile' user_id=app.care_request.owner.id %}">
+            {{ app.care_request.owner.username }}
+          </a> — Status: {{ app.status }}
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">No applications yet.</li>
+      {% endfor %}
+    </ul>
+
+    <h4>✅ Assigned Pets</h4>
+    <ul class="list-group mb-4">
+      {% for app in assigned_requests %}
+        <li class="list-group-item">
+          {{ app.care_request.pet.name }} — {{ app.care_request.start_date }} to {{ app.care_request.end_date }}
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">No accepted care yet.</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+{% endblock %}

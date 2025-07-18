@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary mb-3">← Back to Dashboard</a>
+
+  <div class="card shadow">
+    <div class="card-body">
+      <h2 class="card-title">{{ pet.name }}'s Details</h2>
+
+      <ul class="list-group list-group-flush mt-3">
+        <li class="list-group-item"><strong>Type:</strong> {{ pet.type }}</li>
+        <li class="list-group-item"><strong>Age:</strong> {{ pet.age }} years</li>
+        <li class="list-group-item"><strong>Breed:</strong> {{ pet.breed }}</li>
+        <li class="list-group-item"><strong>Medical Notes:</strong> {{ pet.medical_notes|default:"N/A" }}</li>
+      </ul>
+
+      <div class="mt-4">
+        <a href="{% url 'public_profile' user_id=pet.owner.id %}" class="btn btn-outline-primary">
+          👤 View Owner Profile
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

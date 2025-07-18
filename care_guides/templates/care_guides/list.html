@@ -1,0 +1,6 @@
+<h2>Pet Care Guides</h2>
+<ul>
+  {% for guide in guides %}
+    <li><strong>{{ guide.title }}</strong> ({{ guide.pet_type }})</li>
+  {% endfor %}
+</ul>

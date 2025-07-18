@@ -1,0 +1,6 @@
+<h2>My Pets</h2>
+<ul>
+  {% for pet in pets %}
+    <li>{{ pet.name }} - {{ pet.type }} ({{ pet.age }} years)</li>
+  {% endfor %}
+</ul>
