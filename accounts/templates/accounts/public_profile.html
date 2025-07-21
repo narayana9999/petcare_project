@@ -1,12 +1,17 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block content %}
 <div class="container mt-4">
   <div class="card shadow">
     <div class="card-body">
       <div class="d-flex align-items-center mb-3">
         {% if user_obj.profile_picture %}
-          <img src="{{ user_obj.profile_picture.url }}" width="120" height="120" class="rounded-circle me-3" alt="Profile Picture">
+        <img src="{{ user_obj.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail mb-2" style="width: 150px; height: 150px; object-fit: cover;">
+        {% else %}
+        <img src="{% static 'images/default_profile.png' %}" alt="Default Profile" class="img-thumbnail mb-2" style="width: 150px; height: 150px; object-fit: cover;">
         {% endif %}
+      
         <div>
           <h3 class="card-title mb-0">{{ user_obj.username }}'s Profile</h3>
           <small class="text-muted">{{ user_obj.get_role_display }}</small>
